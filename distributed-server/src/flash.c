@@ -1,5 +1,5 @@
 #include "nvs_flash.h"
-#include "nvs.h"
+#include "flash.h"
 
 void Flash_init(){
     // Inicializa o NVS
