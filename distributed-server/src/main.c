@@ -1,5 +1,7 @@
-#include <stdio.h>
+#include "wifi.h"
+#include "flash.h"
 
 void app_main() {
-    printf("Ola mundo!!!\n");
+    Flash_init();
+    wifi_config();
 }

@@ -127,6 +127,14 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# Configuração do Wifi
+#
+CONFIG_ESP_WIFI_SSID="VIVOFIBRA-6301"
+CONFIG_ESP_WIFI_PASSWORD="JidLPVom5y"
+CONFIG_ESP_MAXIMUM_RETRY=5
+# end of Configuração do Wifi
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEFAULT=y
