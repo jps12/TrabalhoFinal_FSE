@@ -50,3 +50,8 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Central server ignores
+
+central-server/node_modules
+central-server/package-lock.json
