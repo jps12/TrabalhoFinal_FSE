@@ -13,6 +13,7 @@
 #include "flash.h"
 #include "http_client.h"
 #include "mqtt.h"
+#include "cJSON.h"
 
 #define MAC_ADDRESS "00:00:00:00:00"
 xSemaphoreHandle conexaoWifiSemaphore;
@@ -22,7 +23,12 @@ void IniciaMQTTRequest(void *params){
     while (true){
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY)){
             ESP_LOGI("Main Task", "Inicia MQTT Request");
-            mqtt_send_message("Teste", "/fse2021/180033743/dispositivos");
+
+            cJSON *buffer_json = cJSON_CreateObject();
+            cJSON_AddStringToObject(buffer_json, "mac", MAC_ADDRESS);
+
+            
+            mqtt_send_message(cJSON_Print(buffer_json), "/fse2021/180033743/dispositivos");
         }
     }
 }
@@ -34,6 +40,6 @@ void app_main() {
 
     wifi_config();
 
-    xTaskCreate(&IniciaMQTTRequest, "Processa MQTT", 4096, NULL, 1,NULL);
+    xTaskCreate(&IniciaMQTTRequest, "Envia MQTT mensagem de inicio", 4096, NULL, 1,NULL);
     
 }
