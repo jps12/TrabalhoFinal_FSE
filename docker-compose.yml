@@ -3,30 +3,22 @@ version: '3.8'
 services:
 
   dashboard:
-    container_name: smart-house-dashboard
+    container_name: central-server-dashboard
     build:
       context: ./
       dockerfile: Dockerfile
-    # depends_on: 
-    #   - db
+    depends_on: 
+      - broker
     volumes: 
-      - ./central-server:/smart-house/central-server
+      - ./central-server:/central-server/
     ports: 
       - "3000:3000"
 
-#   db:
-#     container_name: mysql-db
-#     platform: linux/x86_64
-#     image: mysql:8.0.26
-#     env_file: .env
-#     command: ['mysqld', '--default-authentication-plugin=caching_sha2_password', '--lower_case_table_names=1']
-#     environment:
-#       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-#       MYSQL_DATABASE: ${MYSQL_DATABASE}
-#     ports: 
-#       - "3306:3306"
-#     volumes:
-#       - dbdata:/var/lib/mysql/
-
-# volumes:
-#   dbdata:
+  broker:
+    container_name: local-emqx-broker
+    image: emqx/emqx
+    environment:
+      - EMQX_HOST=127.0.0.1
+      - EMQX_NAME=local-emqx-broker
+    ports: 
+      - "8083:8083"

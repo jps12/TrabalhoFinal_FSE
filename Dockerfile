@@ -1,5 +1,11 @@
-FROM node:18
+FROM node:17-slim
 
-WORKDIR /smart-house/central-server
+WORKDIR /central-server/
 
-ENTRYPOINT npm start
+COPY ./install.sh /central-server/install.sh
+
+RUN chmod 777 /central-server/install.sh
+
+RUN /central-server/install.sh
+
+CMD npm install && npm start
