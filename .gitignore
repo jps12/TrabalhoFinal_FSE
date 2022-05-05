@@ -54,3 +54,4 @@ dkms.conf
 # Central server ignores
 
 central-server/node-modules
+central-server/package-lock.json
