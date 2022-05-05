@@ -14,6 +14,7 @@
 #include "http_client.h"
 #include "mqtt.h"
 #include "cJSON.h"
+#include "gpio.h"
 
 #define MAC_ADDRESS "00:00:00:00:00"
 xSemaphoreHandle conexaoWifiSemaphore;
@@ -33,7 +34,7 @@ void IniciaMQTTRequest(void *params){
     }
 }
 
-void app_main() {
+void config_app(){
     Flash_init();
 
     conexaoWifiSemaphore = xSemaphoreCreateBinary();
@@ -41,5 +42,11 @@ void app_main() {
     wifi_config();
 
     xTaskCreate(&IniciaMQTTRequest, "Envia MQTT mensagem de inicio", 4096, NULL, 1,NULL);
+}
+
+void app_main() {
     
+    config_app();
+
+    config_gpio();
 }
