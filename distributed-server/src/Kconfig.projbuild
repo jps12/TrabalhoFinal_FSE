@@ -18,3 +18,21 @@ config ESP_MAXIMUM_RETRY
     help
         Configure o valor máximo de tentativas de conexão.
 endmenu
+
+menu "Configuração Low Power"
+
+config LOW_POWER_ENABLE
+    int "Modo Low Power"
+    default 0
+    help
+        Ativar modo low Power da ESP
+endmenu
+
+menu "Configuração MQTT"
+
+config URL_BROKER_MQTT
+    string "URL do broker MQTT"
+    default "mqtt://broker.emqx.io"
+    help
+        Configurar url do protocolo mqtt usado
+endmenu

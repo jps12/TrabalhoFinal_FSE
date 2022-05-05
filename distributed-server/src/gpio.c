@@ -8,11 +8,13 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
-#include "driver/gpio.h"
+#include "driver/rtc_io.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
 
+#include "cJSON.h"
 #include "gpio.h"
+#include "mqtt.h"
 
 #define GPIO_LED_PIN 2
 #define GPIO_BOTAO_PIN 0
@@ -31,15 +33,13 @@ static void IRAM_ATTR gpio_isr_handler_botao(void *args)
 void trataInterrupcaoBotao(void *params)
 {
     int pino;
-    int contador = 0;
 
     while (true)
     {
         if (xQueueReceive(filaDeInterrupcao, &pino, portMAX_DELAY))
         {
-            contador++;
             swich_gpio_led_level();
-            ESP_LOGI(TAG, "Botao acionado %d vezes", contador);
+            ESP_LOGI(TAG, "Botao acionado");
         }
     }
 }
@@ -57,6 +57,12 @@ void config_gpio()
 
     gpio_set_intr_type(GPIO_BOTAO_PIN, GPIO_INTR_POSEDGE);
 
+#if CONFIG_LOW_POWER_ENABLE
+
+    gpio_wakeup_enable(GPIO_BOTAO_PIN, GPIO_INTR_LOW_LEVEL);
+
+#endif
+
     filaDeInterrupcao = xQueueCreate(10, sizeof(int));
     xTaskCreate(trataInterrupcaoBotao, "TrataBotao", 2048, NULL, 1, NULL);
 
@@ -72,6 +78,8 @@ void swich_gpio_led_level()
 {
     estado_led = !estado_led;
     gpio_set_level(GPIO_LED_PIN, estado_led);
+
+    send_estado_botao_mqtt(estado_led);
 }
 
 int get_gpio_led_level()

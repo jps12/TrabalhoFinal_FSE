@@ -135,6 +135,18 @@ CONFIG_ESP_MAXIMUM_RETRY=5
 # end of Configuração do Wifi
 
 #
+# Configuração Low Power
+#
+CONFIG_LOW_POWER_ENABLE=0
+# end of Configuração Low Power
+
+#
+# Configuração MQTT
+#
+CONFIG_URL_BROKER_MQTT="mqtt://broker.emqx.io"
+# end of Configuração MQTT
+
+#
 # Compiler options
 #
 CONFIG_COMPILER_OPTIMIZATION_DEFAULT=y

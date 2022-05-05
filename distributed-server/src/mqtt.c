@@ -26,15 +26,19 @@
 #include "mqtt_client.h"
 
 #include "mqtt.h"
+#include "cJSON.h"
 
 #define TAG "MQTT"
-#define URL_BROKER "mqtt://broker.emqx.io"
+#define URL_BROKER CONFIG_URL_BROKER_MQTT
 
 typedef struct mqtt_message
 {
     char *topic;
     char *message;
 }mqtt_message;
+
+char *comodo = "/sala";
+char *base_mqtt_topic = "/fse2021/180033743";
 
 
 static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event){
@@ -150,4 +154,35 @@ void mqtt_send_message(char *message, char *topic){
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler_publisher, (void *) &mqtt_publish_message);
     esp_mqtt_client_start(client);
+}
+
+void mqtt_send_mac(char *mac_address)
+{
+    ESP_LOGI("Main Task", "Inicia MQTT Request");
+
+    cJSON *buffer_json = cJSON_CreateObject();
+    cJSON_AddStringToObject(buffer_json, "mac", mac_address);
+    
+    char mqtt_topic_publish[256] = "";
+
+    strcat(mqtt_topic_publish, base_mqtt_topic);
+    strcat(mqtt_topic_publish, "/dispositivos");
+
+    mqtt_send_message(cJSON_Print(buffer_json), mqtt_topic_publish);
+}
+
+void send_estado_botao_mqtt(int estado_led)
+{
+    cJSON *buffer_json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(buffer_json, "estado", estado_led);
+
+    char mqtt_topic_publish[256] = "";
+
+    strcat(mqtt_topic_publish, base_mqtt_topic);
+    strcat(mqtt_topic_publish, comodo);
+    strcat(mqtt_topic_publish, "/estado");
+
+    ESP_LOGI(TAG, "%s%s", mqtt_topic_publish);
+
+    mqtt_send_message(cJSON_Print(buffer_json), mqtt_topic_publish);
 }
