@@ -7,23 +7,74 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "sdkconfig.h"
 
+#include "gpio.h"
+
 #define GPIO_LED_PIN 2
+#define GPIO_BOTAO_PIN 0
+#define TAG "GPIO"
+
+xQueueHandle filaDeInterrupcao;
+
+int estado_led = 0;
+
+static void IRAM_ATTR gpio_isr_handler_botao(void *args)
+{
+    int pino = (int)args;
+    xQueueSendFromISR(filaDeInterrupcao, &pino, NULL);
+}
+
+void trataInterrupcaoBotao(void *params)
+{
+    int pino;
+    int contador = 0;
+
+    while (true)
+    {
+        if (xQueueReceive(filaDeInterrupcao, &pino, portMAX_DELAY))
+        {
+            contador++;
+            swich_gpio_led_level();
+            ESP_LOGI(TAG, "Botao acionado %d vezes", contador);
+        }
+    }
+}
 
 void config_gpio()
 {
     gpio_pad_select_gpio(GPIO_LED_PIN);
     gpio_set_direction(GPIO_LED_PIN, GPIO_MODE_OUTPUT);
 
-    int estado = 1;
-    while (true)
-    {
-        gpio_set_level(GPIO_LED_PIN, estado);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        estado = !estado;
-    }
+    gpio_pad_select_gpio(GPIO_BOTAO_PIN);
+    gpio_set_direction(GPIO_BOTAO_PIN, GPIO_MODE_INPUT);
+
+    gpio_pulldown_en(GPIO_BOTAO_PIN);
+    gpio_pullup_dis(GPIO_BOTAO_PIN);
+
+    gpio_set_intr_type(GPIO_BOTAO_PIN, GPIO_INTR_POSEDGE);
+
+    filaDeInterrupcao = xQueueCreate(10, sizeof(int));
+    xTaskCreate(trataInterrupcaoBotao, "TrataBotao", 2048, NULL, 1, NULL);
+
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(GPIO_BOTAO_PIN, gpio_isr_handler_botao, (void *) GPIO_BOTAO_PIN);
+
+    gpio_set_level(GPIO_LED_PIN, estado_led);
+
    
+}
+
+void swich_gpio_led_level()
+{
+    estado_led = !estado_led;
+    gpio_set_level(GPIO_LED_PIN, estado_led);
+}
+
+int get_gpio_led_level()
+{
+    return estado_led;
 }
