@@ -22,6 +22,7 @@
 // - framework-espidf 3.40302.0 (4.3.2) 
 
 xSemaphoreHandle conexaoWifiSemaphore;
+xSemaphoreHandle conexaoMQTTSemaphore;
 
 void config_low_power_mode()
 {
@@ -30,22 +31,26 @@ void config_low_power_mode()
 }
 
 
-void IniciaMQTTRequest(void *params){
+void IniciaMQTTConfig(void *params){
     while (true){
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY)){
-            mqtt_send_mac(MAC_ADDRESS);
+            mqtt_start();
         }
     }
 }
+
 
 void config_app(){
     Flash_init();
 
     conexaoWifiSemaphore = xSemaphoreCreateBinary();
+    conexaoMQTTSemaphore = xSemaphoreCreateBinary();
 
     wifi_config();
 
-    xTaskCreate(&IniciaMQTTRequest, "Envia MQTT mensagem de inicio", 4096, NULL, 1, NULL);
+    xTaskCreate(&IniciaMQTTConfig, "Configura MQTT inicialmente", 4096, NULL, 1, NULL);
+
+    mqtt_envia_mac(MAC_ADDRESS);
 }
 
 void app_main() 
@@ -62,7 +67,7 @@ void app_main()
 
     while (true)
     {
-        vTaskDelay(20000 / portTICK_PERIOD_MS);
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
 
 #if CONFIG_LOW_POWER_ENABLE
 

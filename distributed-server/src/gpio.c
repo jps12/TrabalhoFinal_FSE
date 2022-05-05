@@ -38,8 +38,8 @@ void trataInterrupcaoBotao(void *params)
     {
         if (xQueueReceive(filaDeInterrupcao, &pino, portMAX_DELAY))
         {
-            swich_gpio_led_level();
             ESP_LOGI(TAG, "Botao acionado");
+            swich_gpio_led_level();
         }
     }
 }
@@ -64,7 +64,7 @@ void config_gpio()
 #endif
 
     filaDeInterrupcao = xQueueCreate(10, sizeof(int));
-    xTaskCreate(trataInterrupcaoBotao, "TrataBotao", 2048, NULL, 1, NULL);
+    xTaskCreate(trataInterrupcaoBotao, "TrataBotao", 4096, NULL, 1, NULL);
 
     gpio_install_isr_service(0);
     gpio_isr_handler_add(GPIO_BOTAO_PIN, gpio_isr_handler_botao, (void *) GPIO_BOTAO_PIN);
@@ -79,10 +79,5 @@ void swich_gpio_led_level()
     estado_led = !estado_led;
     gpio_set_level(GPIO_LED_PIN, estado_led);
 
-    send_estado_botao_mqtt(estado_led);
-}
-
-int get_gpio_led_level()
-{
-    return estado_led;
+    mqtt_envia_estado_botao(estado_led);
 }
