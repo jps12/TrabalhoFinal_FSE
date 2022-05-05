@@ -14,13 +14,15 @@
 #include "http_client.h"
 #include "mqtt.h"
 
+#define MAC_ADDRESS "00:00:00:00:00"
 xSemaphoreHandle conexaoWifiSemaphore;
 
-void RealizaHTTPRequest(void *params){
+
+void IniciaMQTTRequest(void *params){
     while (true){
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY)){
-            ESP_LOGI("Main Task", "Realiza HTTP Request");
-            mqtt_start();
+            ESP_LOGI("Main Task", "Inicia MQTT Request");
+            mqtt_send_message("Teste", "/fse2021/180033743/dispositivos");
         }
     }
 }
@@ -32,7 +34,6 @@ void app_main() {
 
     wifi_config();
 
-    xTaskCreate(&RealizaHTTPRequest, "Processa HTTP", 4096, NULL, 1,NULL);
+    xTaskCreate(&IniciaMQTTRequest, "Processa MQTT", 4096, NULL, 1,NULL);
     
-
 }

@@ -28,6 +28,14 @@
 #include "mqtt.h"
 
 #define TAG "MQTT"
+#define URL_BROKER "mqtt://broker.emqx.io"
+
+typedef struct mqtt_message
+{
+    char *topic;
+    char *message;
+}mqtt_message;
+
 
 static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event){
     esp_mqtt_client_handle_t client = event->client;
@@ -83,9 +91,43 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     mqtt_event_handler_cb(event_data);
 }
 
+static void mqtt_event_handler_publisher(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
+{
+    ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
+    mqtt_message *mqtt_publish_message = handler_args;
+    esp_mqtt_event_handle_t event = event_data;
+    esp_mqtt_client_handle_t client = event->client;
+    int msg_id;
+    switch (event->event_id) {
+    case MQTT_EVENT_CONNECTED:
+        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+        msg_id = esp_mqtt_client_publish(client, (char *)mqtt_publish_message->topic, (char *) mqtt_publish_message->message, 0, 1, 0);
+        ESP_LOGI(TAG, "TOPICO %s", mqtt_publish_message->topic);
+        ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
+        break;
+    case MQTT_EVENT_DISCONNECTED:
+        ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+        break;
+    case MQTT_EVENT_PUBLISHED:
+        ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+        break;
+    case MQTT_EVENT_DATA:
+        ESP_LOGI(TAG, "MQTT_EVENT_DATA");
+        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+        printf("DATA=%.*s\r\n", event->data_len, event->data);
+        break;
+    case MQTT_EVENT_ERROR:
+        ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
+        break;
+    default:
+        ESP_LOGI(TAG, "Other event id:%d", event->event_id);
+        break;
+    }
+}
+
 void mqtt_start(){
     esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = "mqtt://mqtt.eclipse.org",
+        .uri = URL_BROKER,
     };
 
     esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
@@ -93,4 +135,19 @@ void mqtt_start(){
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
 
+}
+
+void mqtt_send_message(char *message, char *topic){
+    esp_mqtt_client_config_t mqtt_cfg = {
+        .uri = URL_BROKER,
+    };
+
+    mqtt_message mqtt_publish_message = {
+        .topic = topic,
+        .message = message  
+    };
+
+    esp_mqtt_client_handle_t client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler_publisher, (void *) &mqtt_publish_message);
+    esp_mqtt_client_start(client);
 }
