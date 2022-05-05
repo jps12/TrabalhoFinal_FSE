@@ -9,6 +9,7 @@
 #include "esp_netif.h"
 #include "esp_tls.h"
 #include "esp_sleep.h"
+#include "esp32/rom/uart.h"
 
 #include "wifi.h"
 #include "flash.h"
@@ -27,7 +28,7 @@ xSemaphoreHandle conexaoMQTTSemaphore;
 void config_low_power_mode()
 {
     esp_sleep_enable_gpio_wakeup();
-    esp_sleep_enable_timer_wakeup(10 * 1000000); // Tempo dado em microsegundos
+    esp_sleep_enable_timer_wakeup(1 * 1000000); // Tempo dado em microsegundos
 }
 
 
@@ -35,6 +36,14 @@ void IniciaMQTTConfig(void *params){
     while (true){
         if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY)){
             mqtt_start();
+        }
+    }
+}
+
+void IniciaSleepLowPower(void *params){
+    while (true){
+        if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY)){
+            esp_light_sleep_start();
         }
     }
 }
@@ -67,11 +76,19 @@ void app_main()
 
     while (true)
     {
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
 
 #if CONFIG_LOW_POWER_ENABLE
 
+        uart_tx_wait_idle(CONFIG_ESP_CONSOLE_UART_NUM);
+
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
+
         esp_light_sleep_start();
+
+
+#else
+
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
 
 #endif
     }

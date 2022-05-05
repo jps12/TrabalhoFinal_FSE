@@ -36,11 +36,30 @@ void trataInterrupcaoBotao(void *params)
 
     while (true)
     {
+#if CONFIG_LOW_POWER_ENABLE
+
+        if (rtc_gpio_get_level(GPIO_BOTAO_PIN) == 0)
+        {
+            if (xQueueReceive(filaDeInterrupcao, &pino, portMAX_DELAY))
+            {
+                ESP_LOGI(TAG, "Botao acionado");
+                swich_gpio_led_level();
+            }
+            ESP_LOGI(TAG, "Esperando botao ser solto...");
+            vTaskDelay(pdMS_TO_TICKS(10));
+            continue;
+        }
+        
+#else
+
         if (xQueueReceive(filaDeInterrupcao, &pino, portMAX_DELAY))
         {
             ESP_LOGI(TAG, "Botao acionado");
             swich_gpio_led_level();
         }
+
+#endif
+
     }
 }
 
