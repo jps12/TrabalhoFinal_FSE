@@ -6,6 +6,8 @@
 **Aluno:** Erick Giffoni 
 **Matricula:** 170141161
 
+**Vídeo de apresentação:** https://youtu.be/HBB-paEi1Qc
+
 ## Sobre:
 
 - Foi utilizado o plataformIO para o desenvolvimento do firmware da ESP32.
