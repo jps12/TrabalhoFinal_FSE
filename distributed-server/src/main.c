@@ -87,8 +87,17 @@ void app_main()
 
 
 #else
+        float temperatura = 0, umidade = 0;
 
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        for (int i=0; i<5; i++)
+        {
+            temperatura += get_temperatura_gpio();
+            umidade += get_umidade_gpio();
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+        }
+
+        mqtt_envia_dht11_info("umidade", umidade/5.0);
+        mqtt_envia_dht11_info("temperatura", temperatura/5.0);
 
 #endif
     }

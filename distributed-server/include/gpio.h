@@ -2,7 +2,8 @@
 #define GPIO_H
 
 void config_gpio();
-void swich_gpio_led_level();
-int get_gpio_led_level();
+int get_temperatura_gpio();
+int get_umidade_gpio();
+void troca_gpio_led_estado();
 
 #endif

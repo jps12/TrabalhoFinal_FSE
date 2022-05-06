@@ -137,7 +137,7 @@ CONFIG_ESP_MAXIMUM_RETRY=5
 #
 # Configuração Low Power
 #
-CONFIG_LOW_POWER_ENABLE=1
+CONFIG_LOW_POWER_ENABLE=0
 # end of Configuração Low Power
 
 #

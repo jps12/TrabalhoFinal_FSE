@@ -120,6 +120,21 @@ void mqtt_envia_estado_botao(int estado_led)
     mqtt_envia_mensagem(cJSON_Print(buffer_json), mqtt_topic_publish);
 }
 
+void mqtt_envia_dht11_info(char *topic, float value)
+{
+    cJSON *buffer_json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(buffer_json, topic, value);
+
+    char mqtt_topic_publish[256] = "";
+
+    strcat(mqtt_topic_publish, base_mqtt_topic);
+    strcat(mqtt_topic_publish, comodo);
+    strcat(mqtt_topic_publish, "/");
+    strcat(mqtt_topic_publish, topic);
+
+    mqtt_envia_mensagem(cJSON_Print(buffer_json), mqtt_topic_publish);
+}
+
 void mqtt_envia_mac(char * mac_address)
 {
     cJSON *buffer_json = cJSON_CreateObject();
