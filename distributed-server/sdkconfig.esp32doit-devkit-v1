@@ -143,7 +143,7 @@ CONFIG_LOW_POWER_ENABLE=0
 #
 # Configuração MQTT
 #
-CONFIG_URL_BROKER_MQTT="mqtt://broker.emqx.io"
+CONFIG_URL_BROKER_MQTT="ws://192.168.15.17:8083/mqtt"
 # end of Configuração MQTT
 
 #

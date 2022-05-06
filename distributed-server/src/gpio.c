@@ -65,7 +65,7 @@ void trataInterrupcaoBotao(void *params)
     }
 }
 
-void config_gpio()
+void configura_gpio()
 {
     gpio_pad_select_gpio(GPIO_LED_PIN);
     gpio_set_direction(GPIO_LED_PIN, GPIO_MODE_OUTPUT);
