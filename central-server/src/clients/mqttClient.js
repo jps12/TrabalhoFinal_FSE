@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import mqtt from 'mqtt/dist/mqtt';
 
+export const BASE_TOPIC_PATH = '/fse2021/180033743/';
+
 /**
  * 
  * @param {String} topic : topico para se inscrever no broker
@@ -9,31 +11,31 @@ import mqtt from 'mqtt/dist/mqtt';
  */
 export function mqttClient(topic) {
   const [connectionStatus, setConnectionStatus] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState([]);
   const [subscribed, setSubscribed] = useState(false);
-  const [client, setClient] = useState(null);
+  // const [client, setClient] = useState(null);
 
   const brokerURI = 'ws://127.0.0.1:8083/mqtt';
 
-  setClient(mqtt.connect(brokerURI));
+  const client = mqtt.connect(brokerURI);
+
+  client.on('connect', () => {
+    setConnectionStatus(true);
+    subscribeTo(topic);
+  });
 
   useEffect(
     () => {
       if(client !== null ){
-        client.on('connect', () => {
-          setConnectionStatus(true);
-          subscribeTo(topic);
-        });
-  
         client.on('message', (topic, payload, packet) => {
           const newMessage = payload.toString();
-          setMessages(messages.concat(newMessage));
+          setMessage(newMessage);
   
           console.log(`MQTT: nova mensagem de ${topic} : ${newMessage}`);
         });
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [messages]);
+    
+    }, [message]);
 
     /**
    * 
@@ -71,8 +73,9 @@ export function mqttClient(topic) {
 
   return {
     connectionStatus,
-    messages,
-    subscribed
+    message,
+    subscribed,
+    client
   };
 };
 
