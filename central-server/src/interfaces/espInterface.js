@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 
 import { mqttClient, BASE_TOPIC_PATH } from '../clients/mqttClient'
 import { Esp } from '../classes/esp';
-import writeDataToCsvLog from '../log'
 
 
 /**
@@ -42,7 +41,6 @@ export const EspInterface = () => {
          }
       });
 
-      writeDataToCsvLog(espTest.output);
 
       espTest.mqttClient.client.subscribe(
          BASE_TOPIC_PATH + espTest.room + '/umidade'
@@ -57,7 +55,6 @@ export const EspInterface = () => {
          }
       });
 
-      writeDataToCsvLog(espTest.input);
 
       espTest.mqttClient.client.subscribe(
          BASE_TOPIC_PATH + espTest.room + '/estado'
@@ -72,7 +69,6 @@ export const EspInterface = () => {
          }
       });
 
-      writeDataToCsvLog(espTest.state);
    }
 
 
