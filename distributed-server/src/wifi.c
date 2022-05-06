@@ -53,7 +53,8 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 }
 
 
-void wifi_config(){
+void wifi_configura()
+{
     s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());

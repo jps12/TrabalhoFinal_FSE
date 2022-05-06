@@ -105,12 +105,14 @@ void troca_gpio_led_estado()
     mqtt_envia_estado_botao(estado_led);
 }
 
-int get_temperatura_gpio(){
+int get_temperatura_gpio()
+{
     struct dht11_reading tmp = DHT11_read();
     return tmp.temperature;
 }
 
-int get_umidade_gpio(){
+int get_umidade_gpio()
+{
     struct dht11_reading tmp = DHT11_read();
     return tmp.humidity;
 }

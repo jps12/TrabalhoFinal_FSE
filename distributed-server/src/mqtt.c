@@ -31,8 +31,6 @@
 #define TAG "MQTT"
 #define URL_BROKER CONFIG_URL_BROKER_MQTT
 
-extern xSemaphoreHandle conexaoMQTTSemaphore;
-
 typedef struct mqtt_message
 {
     char *topic;
@@ -46,7 +44,8 @@ esp_mqtt_client_handle_t client_mqtt;
 // mqtt://broker.emqx.io 
 
 
-static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event){
+static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event)
+{
     // esp_mqtt_client_handle_t client = event->client;
 
     switch (event->event_id) {
@@ -65,7 +64,6 @@ static esp_err_t mqtt_event_handler_cb(esp_mqtt_event_handle_t event){
         break;
     case MQTT_EVENT_PUBLISHED:
         ESP_LOGI(TAG, "MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
-        xSemaphoreGive(conexaoMQTTSemaphore);
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
@@ -88,7 +86,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     mqtt_event_handler_cb(event_data);
 }
 
-void mqtt_start(){
+void mqtt_start()
+{
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = URL_BROKER,
     };
@@ -100,7 +99,8 @@ void mqtt_start(){
 
 }
 
-void mqtt_envia_mensagem(char *message, char *topic){
+void mqtt_envia_mensagem(char *message, char *topic)
+{
     int msg_id = esp_mqtt_client_publish(client_mqtt, topic, message, 0, 1, 0);
     ESP_LOGI(TAG, "Mensagem enviada com id: %d", msg_id);
 }

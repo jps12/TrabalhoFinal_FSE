@@ -1,6 +1,6 @@
 #ifndef FLASH_H
 #define FLASH_H
 
-void Flash_init();
+void flash_inicia();
 
 #endif

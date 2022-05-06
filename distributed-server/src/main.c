@@ -13,7 +13,6 @@
 
 #include "wifi.h"
 #include "flash.h"
-#include "http_client.h"
 #include "mqtt.h"
 #include "cJSON.h"
 #include "gpio.h"
@@ -32,41 +31,36 @@ void config_low_power_mode()
 }
 
 
-void IniciaMQTTConfig(void *params){
-    while (true){
-        if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY)){
+void IniciaMQTTConfig(void *params)
+{
+    while (true)
+    {
+        if (xSemaphoreTake(conexaoWifiSemaphore, portMAX_DELAY))
+        {
             mqtt_start();
         }
     }
 }
 
-void IniciaSleepLowPower(void *params){
-    while (true){
-        if (xSemaphoreTake(conexaoMQTTSemaphore, portMAX_DELAY)){
-            esp_light_sleep_start();
-        }
-    }
-}
 
-
-void config_app(){
-    Flash_init();
+void configura_app(){
+    flash_inicia();
 
     conexaoWifiSemaphore = xSemaphoreCreateBinary();
-    conexaoMQTTSemaphore = xSemaphoreCreateBinary();
 
-    wifi_config();
+    wifi_configura();
 
     xTaskCreate(&IniciaMQTTConfig, "Configura MQTT inicialmente", 4096, NULL, 1, NULL);
 
     mqtt_envia_mac(MAC_ADDRESS);
+
+    configura_gpio();
 }
 
 void app_main() 
 {
     
-    config_app();
-    config_gpio();
+    configura_app();
 
 #if CONFIG_LOW_POWER_ENABLE
 
